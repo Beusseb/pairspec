@@ -1,0 +1,84 @@
+[spec]
+name = "fintech_payout_rules"
+version = "1.0.0"
+description = "Multi-channel Fintech/Gaming payout rules — Blind Spec for Mirror Trap Benchmark"
+strength = 2
+
+[default_expect]
+status = "approved"
+requires_2fa = false
+fee_bps = 0
+
+[[parameters]]
+name = "channel"
+type = "enum"
+values = ["web", "mobile", "api"]
+description = "Originating client channel"
+
+[[parameters]]
+name = "rail"
+type = "enum"
+values = ["SEPA", "INSTANT", "SWIFT"]
+description = "Settlement rail"
+
+[[parameters]]
+name = "currency"
+type = "enum"
+values = ["EUR", "USD", "GBP", "JPY"]
+description = "ISO 4217 currency code"
+
+[[parameters]]
+name = "kyc_tier"
+type = "enum"
+values = ["unverified", "basic", "verified"]
+description = "Customer KYC verification tier"
+
+[[parameters]]
+name = "amount"
+type = "int"
+min = 1
+max = 10000
+step = 1
+include_invalid = true
+extra_values = [500, 501, 5000]
+description = "Payout amount in whole currency units"
+
+# Impossible product combinations (excluded from valid domain)
+[[exclusions]]
+expr = "rail == 'SEPA' and currency == 'JPY'"
+reason = "JPY is structurally unavailable on SEPA rails"
+
+[[exclusions]]
+expr = "rail == 'INSTANT' and currency != 'EUR'"
+reason = "SEPA Instant operates exclusively in EUR"
+
+# Blind business oracles derived strictly from the functional specification
+[[oracles]]
+name = "invalid_amount_bounds"
+priority = 10
+when = "amount <= 0 or amount > 10000"
+expect = { status = "rejected", reason = "invalid_amount", requires_2fa = false, fee_bps = 0 }
+
+[[oracles]]
+name = "sepa_eur_only"
+priority = 15
+when = "rail == 'SEPA' and currency != 'EUR'"
+expect = { status = "rejected", reason = "unsupported_currency", requires_2fa = false, fee_bps = 0 }
+
+[[oracles]]
+name = "kyc_unverified_cap"
+priority = 20
+when = "kyc_tier == 'unverified' and amount > 500"
+expect = { status = "rejected", reason = "kyc_limit_exceeded", requires_2fa = false, fee_bps = 0 }
+
+[[oracles]]
+name = "mobile_high_value_2fa"
+priority = 40
+when = "channel == 'mobile' and amount >= 5000"
+expect = { requires_2fa = true }
+
+[[oracles]]
+name = "swift_fee"
+priority = 50
+when = "rail == 'SWIFT'"
+expect = { fee_bps = 150 }
