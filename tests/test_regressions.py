@@ -115,7 +115,8 @@ def test_kotlin_emitter_escapes_templates_and_slug_stays_an_identifier() -> None
     res = generate_matrix(spec)
     assert '"\\$name"' in emit_suite(res, "kotlin")
     pytest_code = emit_suite(res, "pytest")
-    assert "def invoke_spec_3ds_checkout(" in pytest_code
+    assert "invoke_spec_3ds_checkout: SutAdapter" in pytest_code
+    assert "def test_spec_3ds_checkout_" in pytest_code
     compile(pytest_code, "<emitted>", "exec")
 
 

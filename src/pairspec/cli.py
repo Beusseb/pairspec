@@ -14,6 +14,7 @@ from pairspec.ipog import GenerationResult, generate_matrix
 from pairspec.llm_client import LLMConfig, extract_spec_blind, list_models
 from pairspec.lockfile import build_lockfile, check_test_drift, load_lockfile, save_lockfile
 from pairspec.mcp_server import serve_stdio
+from pairspec.reporters import render_drift_report
 from pairspec.schema import load_spec
 
 STARTER_SPEC_TOML = """[spec]
@@ -179,30 +180,43 @@ def cmd_drift(args: argparse.Namespace) -> int:
 
     report = check_test_drift(current_lock, args.tests, previous_lock=previous_lock)
     elapsed_ms = (time.perf_counter() - t0) * 1000.0
+    expected_ids = [c.case_id for c in result.cases]
 
-    if args.as_json:
-        payload = report.to_dict()
-        payload["elapsed_ms"] = round(elapsed_ms, 2)
-        print(json.dumps(payload, indent=2, ensure_ascii=False))
+    fmt = "json" if args.as_json else args.format
+    rendered = render_drift_report(
+        report,
+        spec_name=result.spec_name,
+        spec_fingerprint=result.spec_fingerprint,
+        spec_path=str(args.spec),
+        expected_case_ids=expected_ids,
+        fmt=fmt,
+        elapsed_ms=elapsed_ms,
+        tool_version=__version__,
+    )
+
+    if args.out:
+        out_path = Path(args.out)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(rendered, encoding="utf-8")
+        print(f"[OK] Wrote {fmt} drift report -> {out_path}", file=sys.stderr)
     else:
-        status = "CLEAN" if report.is_clean else "DRIFT DETECTED"
-        print(
-            f"[PairSpec Drift] {status} ({elapsed_ms:.1f}ms) | "
-            f"spec={result.spec_name} ({result.spec_fingerprint}) | "
-            f"traceability={report.coverage_pct}% ({report.spec_case_count - len(report.missing_in_tests)}/{report.spec_case_count})"
+        print(rendered, end="")
+
+    if args.summary_file:
+        summary_md = render_drift_report(
+            report,
+            spec_name=result.spec_name,
+            spec_fingerprint=result.spec_fingerprint,
+            spec_path=str(args.spec),
+            expected_case_ids=expected_ids,
+            fmt="markdown",
+            elapsed_ms=elapsed_ms,
+            tool_version=__version__,
         )
-        if report.missing_in_tests:
-            print(f"  Missing in tests ({len(report.missing_in_tests)}): {', '.join(report.missing_in_tests)}")
-        if report.orphaned_in_tests:
-            print(f"  Orphaned test tags ({len(report.orphaned_in_tests)}): {', '.join(report.orphaned_in_tests)}")
-        if report.lock_diff and report.lock_diff.has_changes:
-            ld = report.lock_diff
-            print(
-                f"  Lock diff ({ld.old_fingerprint} -> {ld.new_fingerprint}): "
-                f"+{len(ld.added)} added, -{len(ld.removed)} removed, ~{len(ld.oracle_changed)} oracle changed"
-            )
-            for oc in ld.oracle_changed:
-                print(f"    ~ {oc.case_id}: {oc.old_expected} -> {oc.new_expected}")
+        summary_path = Path(args.summary_file)
+        summary_path.parent.mkdir(parents=True, exist_ok=True)
+        with summary_path.open("a", encoding="utf-8") as fh:
+            fh.write(summary_md)
 
     return 0 if report.is_clean else 2
 
@@ -270,7 +284,15 @@ def build_parser() -> argparse.ArgumentParser:
     p_drift.add_argument("--tests", required=True, help="Directory or file containing tagged tests")
     p_drift.add_argument("--lock", help="Committed pairspec.lock.json to diff against (must exist when given)")
     p_drift.add_argument("--strength", type=int, choices=[1, 2, 3])
-    p_drift.add_argument("--json", dest="as_json", action="store_true", help="Machine-readable JSON output")
+    p_drift.add_argument(
+        "--format",
+        choices=["text", "json", "sarif", "junit", "markdown"],
+        default="text",
+        help="Drift report format (default: text)",
+    )
+    p_drift.add_argument("--json", dest="as_json", action="store_true", help="Shorthand for --format json")
+    p_drift.add_argument("--out", help="Write formatted drift report to file instead of stdout")
+    p_drift.add_argument("--summary-file", help="Append Markdown summary table (e.g. $GITHUB_STEP_SUMMARY)")
     p_drift.set_defaults(func=cmd_drift)
 
     p_ext = sub.add_parser("extract", help="Blind LLM spec extraction from prose (llm-gateway / Ollama / BYOK)")

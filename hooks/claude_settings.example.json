@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 hooks/anti_mirror_trap_hook.py"
+          }
+        ]
+      }
+    ]
+  }
+}

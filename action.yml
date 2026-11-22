@@ -1,0 +1,159 @@
+name: "PairSpec Drift Gate"
+description: "Run deterministic <2s Spec Drift checks against @pairspec:PS-XXXXXXXX tagged tests with SARIF, JUnit XML, and GitHub Step Summary support."
+author: "Beusseb"
+
+branding:
+  icon: "check-circle"
+  color: "green"
+
+inputs:
+  spec:
+    description: "Path to the PairSpec specification file (.toml, .json, .md, or .yaml)."
+    required: true
+  tests:
+    description: "Directory or file containing tests tagged with @pairspec:PS-XXXXXXXX."
+    required: true
+  lock:
+    description: "Optional path to committed pairspec.lock.json for semantic diffing."
+    required: false
+    default: ""
+  strength:
+    description: "Optional combinatorial strength override (1, 2, or 3)."
+    required: false
+    default: ""
+  format:
+    description: "Report format: text, json, sarif, junit, or markdown."
+    required: false
+    default: "text"
+  output-file:
+    description: "Optional file path where the formatted drift report will be written."
+    required: false
+    default: ""
+  step-summary:
+    description: "Append a Markdown traceability table to $GITHUB_STEP_SUMMARY (true/false)."
+    required: false
+    default: "true"
+  fail-on-drift:
+    description: "Fail the workflow step when drift is detected (true/false)."
+    required: false
+    default: "true"
+  python-version:
+    description: "Python version to provision with uv."
+    required: false
+    default: "3.12"
+
+outputs:
+  status:
+    description: "Drift gate status: clean, drift, or error."
+    value: ${{ steps.drift.outputs.status }}
+  exit-code:
+    description: "Raw CLI exit code (0=clean, 2=drift, 1=error)."
+    value: ${{ steps.drift.outputs.exit_code }}
+  traceability-pct:
+    description: "Percentage of spec cases covered by @pairspec tags."
+    value: ${{ steps.drift.outputs.traceability_pct }}
+  missing-count:
+    description: "Number of spec cases missing from tagged tests."
+    value: ${{ steps.drift.outputs.missing_count }}
+  orphaned-count:
+    description: "Number of orphaned @pairspec tags in tests."
+    value: ${{ steps.drift.outputs.orphaned_count }}
+  report-file:
+    description: "Path to the generated report file, when output-file is provided."
+    value: ${{ steps.drift.outputs.report_file }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up uv
+      uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Run PairSpec Drift Gate
+      id: drift
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        INPUT_SPEC: ${{ inputs.spec }}
+        INPUT_TESTS: ${{ inputs.tests }}
+        INPUT_LOCK: ${{ inputs.lock }}
+        INPUT_STRENGTH: ${{ inputs.strength }}
+        INPUT_FORMAT: ${{ inputs.format }}
+        INPUT_OUTPUT_FILE: ${{ inputs.output-file }}
+        INPUT_STEP_SUMMARY: ${{ inputs.step-summary }}
+        INPUT_FAIL_ON_DRIFT: ${{ inputs.fail-on-drift }}
+      run: |
+        set -euo pipefail
+        export PYTHONPATH="${ACTION_PATH}/src${PYTHONPATH:+:${PYTHONPATH}}"
+
+        ARGS=(drift "$INPUT_SPEC" --tests "$INPUT_TESTS" --format "$INPUT_FORMAT")
+        if [[ -n "$INPUT_LOCK" ]]; then
+          ARGS+=(--lock "$INPUT_LOCK")
+        fi
+        if [[ -n "$INPUT_STRENGTH" ]]; then
+          ARGS+=(--strength "$INPUT_STRENGTH")
+        fi
+        if [[ -n "$INPUT_OUTPUT_FILE" ]]; then
+          ARGS+=(--out "$INPUT_OUTPUT_FILE")
+        fi
+        if [[ "$INPUT_STEP_SUMMARY" == "true" && -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+          ARGS+=(--summary-file "$GITHUB_STEP_SUMMARY")
+        fi
+
+        set +e
+        uv run --no-project python -m pairspec "${ARGS[@]}"
+        RC=$?
+        set -e
+
+        JSON_ARGS=(drift "$INPUT_SPEC" --tests "$INPUT_TESTS" --format json)
+        if [[ -n "$INPUT_LOCK" ]]; then
+          JSON_ARGS+=(--lock "$INPUT_LOCK")
+        fi
+        if [[ -n "$INPUT_STRENGTH" ]]; then
+          JSON_ARGS+=(--strength "$INPUT_STRENGTH")
+        fi
+
+        set +e
+        METRICS_JSON=$(uv run --no-project python -m pairspec "${JSON_ARGS[@]}" 2>/dev/null)
+        set -e
+
+        if [[ "$RC" -eq 0 ]]; then
+          STATUS="clean"
+        elif [[ "$RC" -eq 2 ]]; then
+          STATUS="drift"
+        else
+          STATUS="error"
+        fi
+
+        METRICS_JSON="$METRICS_JSON" STATUS="$STATUS" RC="$RC" REPORT_FILE="$INPUT_OUTPUT_FILE" uv run --no-project python - <<'PY'
+        import json, os
+
+        out_path = os.environ["GITHUB_OUTPUT"]
+        raw = os.environ.get("METRICS_JSON", "").strip()
+        traceability = "0.0"
+        missing = "0"
+        orphaned = "0"
+        if raw:
+            try:
+                data = json.loads(raw)
+                traceability = str(data.get("traceability_pct", 0.0))
+                missing = str(len(data.get("missing_in_tests", [])))
+                orphaned = str(len(data.get("orphaned_in_tests", [])))
+            except json.JSONDecodeError:
+                pass
+        with open(out_path, "a", encoding="utf-8") as fh:
+            fh.write(f"status={os.environ['STATUS']}\n")
+            fh.write(f"exit_code={os.environ['RC']}\n")
+            fh.write(f"traceability_pct={traceability}\n")
+            fh.write(f"missing_count={missing}\n")
+            fh.write(f"orphaned_count={orphaned}\n")
+            fh.write(f"report_file={os.environ['REPORT_FILE']}\n")
+        PY
+
+        if [[ "$RC" -eq 1 ]]; then
+          exit 1
+        fi
+        if [[ "$RC" -eq 2 && "$INPUT_FAIL_ON_DRIFT" == "true" ]]; then
+          exit 2
+        fi

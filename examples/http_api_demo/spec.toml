@@ -1,0 +1,74 @@
+[spec]
+name = "payout_api"
+version = "1.0.0"
+description = "HTTP JSON Payout Evaluation API — blind combinatorial spec executed end-to-end against a real stdlib HTTP server"
+strength = 2
+
+[default_expect]
+http_status = 200
+status = "approved"
+requires_2fa = false
+fee_bps = 0
+
+[[parameters]]
+name = "channel"
+type = "enum"
+values = ["web", "mobile", "api"]
+
+[[parameters]]
+name = "rail"
+type = "enum"
+values = ["SEPA", "INSTANT", "SWIFT"]
+
+[[parameters]]
+name = "currency"
+type = "enum"
+values = ["EUR", "USD", "GBP"]
+
+[[parameters]]
+name = "kyc_tier"
+type = "enum"
+values = ["unverified", "basic", "verified"]
+
+[[parameters]]
+name = "amount"
+type = "int"
+min = 1
+max = 10000
+step = 1
+include_invalid = true
+extra_values = [500, 5000]
+
+[[exclusions]]
+expr = "rail == 'INSTANT' and currency != 'EUR'"
+reason = "SEPA Instant supports EUR only"
+
+[[oracles]]
+name = "invalid_amount_bounds"
+priority = 10
+when = "amount <= 0 or amount > 10000"
+expect = { http_status = 422, status = "rejected", reason = "invalid_amount", requires_2fa = false, fee_bps = 0 }
+
+[[oracles]]
+name = "sepa_eur_only"
+priority = 15
+when = "rail == 'SEPA' and currency != 'EUR'"
+expect = { http_status = 422, status = "rejected", reason = "unsupported_currency", requires_2fa = false, fee_bps = 0 }
+
+[[oracles]]
+name = "kyc_unverified_cap"
+priority = 20
+when = "kyc_tier == 'unverified' and amount > 500"
+expect = { http_status = 403, status = "rejected", reason = "kyc_limit_exceeded", requires_2fa = false, fee_bps = 0 }
+
+[[oracles]]
+name = "mobile_high_value_2fa"
+priority = 40
+when = "channel == 'mobile' and amount >= 5000"
+expect = { requires_2fa = true }
+
+[[oracles]]
+name = "swift_fee"
+priority = 50
+when = "rail == 'SWIFT'"
+expect = { fee_bps = 150 }

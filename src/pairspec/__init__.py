@@ -12,6 +12,7 @@ from pairspec.lockfile import (
     load_lockfile,
     save_lockfile,
 )
+from pairspec.reporters import render_drift_report
 from pairspec.schema import (
     ExclusionRule,
     OracleRule,
@@ -42,6 +43,7 @@ __all__ = [
     "generate_matrix",
     "load_lockfile",
     "load_spec",
+    "render_drift_report",
     "save_lockfile",
     "verify_coverage",
 ]

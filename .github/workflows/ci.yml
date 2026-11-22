@@ -8,45 +8,89 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  lint-and-typecheck:
-    name: Lint (Ruff) & Typecheck (Mypy)
+  static-gate:
+    name: Static Gate (Ruff, Mypy, Dogfood)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf38d # v10.4.0
         with:
+          python-version: "3.12"
           enable-cache: true
-      - name: Set up Python 3.12
-        run: uv python install 3.12
       - name: Ruff check
         run: uvx ruff check .
       - name: Mypy check
         run: uvx mypy src/pairspec
+      - name: Static dogfood gate (freshness, emitters, SARIF/JUnit)
+        run: uv run --no-project python scripts/check_static.py
 
   test:
-    name: Test (Python ${{ matrix.python-version }})
+    name: Test & Coverage (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf38d # v10.4.0
         with:
+          python-version: ${{ matrix.python-version }}
           enable-cache: true
-      - name: Set up Python ${{ matrix.python-version }}
-        run: uv python install ${{ matrix.python-version }}
       - name: Install package with dev extras
         run: uv venv --python ${{ matrix.python-version }} && uv pip install -e ".[dev]"
-      - name: Run pytest suite
-        run: uv run pytest -v
+      - name: Run unit/regression tests with >= 90% coverage gate
+        run: uv run pytest tests/ -v --cov=pairspec --cov-report=term-missing --cov-fail-under=90
+      - name: Run live stdlib HTTP API demo (untouched emitted suite)
+        run: uv run pytest examples/http_api_demo/ -v
       - name: Run Mirror Trap benchmark demo
         run: uv run python examples/fintech_payout/mirror_trap_demo.py
-      - name: CLI end-to-end smoke test (generate -> emit -> drift)
+
+  action-dogfood:
+    name: Composite Action Dogfood (SARIF + JUnit + Step Summary)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run PairSpec Composite Action (SARIF + Step Summary)
+        id: sarif_gate
+        uses: ./
+        with:
+          spec: examples/http_api_demo/spec.toml
+          tests: examples/http_api_demo
+          lock: examples/http_api_demo/pairspec.lock.json
+          format: sarif
+          output-file: drift.sarif
+          step-summary: "true"
+          fail-on-drift: "true"
+      - name: Run PairSpec Composite Action (JUnit XML)
+        id: junit_gate
+        uses: ./
+        with:
+          spec: examples/http_api_demo/spec.toml
+          tests: examples/http_api_demo
+          lock: examples/http_api_demo/pairspec.lock.json
+          format: junit
+          output-file: drift-junit.xml
+          step-summary: "false"
+          fail-on-drift: "true"
+      - name: Verify Composite Action outputs & artifacts
+        shell: bash
+        env:
+          SARIF_STATUS: ${{ steps.sarif_gate.outputs.status }}
+          SARIF_PCT: ${{ steps.sarif_gate.outputs.traceability-pct }}
+          JUNIT_STATUS: ${{ steps.junit_gate.outputs.status }}
         run: |
-          TMP_DIR=$(mktemp -d)
-          uv run pairspec generate examples/fintech_payout/spec.toml --lock "$TMP_DIR/pairspec.lock.json"
-          uv run pairspec emit examples/fintech_payout/spec.toml --format pytest --out "$TMP_DIR/test_payout.py"
-          uv run pairspec drift examples/fintech_payout/spec.toml --tests "$TMP_DIR" --lock "$TMP_DIR/pairspec.lock.json"
+          set -euo pipefail
+          test "$SARIF_STATUS" = "clean"
+          test "$SARIF_PCT" = "100.0"
+          test "$JUNIT_STATUS" = "clean"
+          test -s drift.sarif
+          test -s drift-junit.xml

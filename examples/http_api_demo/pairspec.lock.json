@@ -1,0 +1,677 @@
+{
+  "schema_version": "1",
+  "spec_name": "payout_api",
+  "spec_version": "1.0.0",
+  "spec_fingerprint": "b361799660fa27fe",
+  "strength": 2,
+  "cartesian_size": 648,
+  "case_count": 36,
+  "reduction_pct": 94.44,
+  "coverage_pct": 100.0,
+  "cases": {
+    "PS-D2BC880B": {
+      "inputs": {
+        "channel": "web",
+        "rail": "SEPA",
+        "currency": "EUR",
+        "kyc_tier": "unverified",
+        "amount": 0
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "invalid_amount"
+      },
+      "matched_oracles": [
+        "invalid_amount_bounds"
+      ]
+    },
+    "PS-ACA9D30E": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "SWIFT",
+        "currency": "USD",
+        "kyc_tier": "basic",
+        "amount": 0
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "invalid_amount"
+      },
+      "matched_oracles": [
+        "invalid_amount_bounds",
+        "swift_fee"
+      ]
+    },
+    "PS-9DFC02CF": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SEPA",
+        "currency": "GBP",
+        "kyc_tier": "verified",
+        "amount": 0
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "invalid_amount"
+      },
+      "matched_oracles": [
+        "invalid_amount_bounds",
+        "sepa_eur_only"
+      ]
+    },
+    "PS-6A8DA933": {
+      "inputs": {
+        "channel": "web",
+        "rail": "SWIFT",
+        "currency": "USD",
+        "kyc_tier": "verified",
+        "amount": 1
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    },
+    "PS-D083AC0C": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "INSTANT",
+        "currency": "EUR",
+        "kyc_tier": "unverified",
+        "amount": 1
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 0
+      },
+      "matched_oracles": []
+    },
+    "PS-6A4CEE57": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SEPA",
+        "currency": "GBP",
+        "kyc_tier": "basic",
+        "amount": 1
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "unsupported_currency"
+      },
+      "matched_oracles": [
+        "sepa_eur_only"
+      ]
+    },
+    "PS-BC8A41DE": {
+      "inputs": {
+        "channel": "web",
+        "rail": "SWIFT",
+        "currency": "GBP",
+        "kyc_tier": "unverified",
+        "amount": 2
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    },
+    "PS-9F4D6FC4": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "INSTANT",
+        "currency": "EUR",
+        "kyc_tier": "verified",
+        "amount": 2
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 0
+      },
+      "matched_oracles": []
+    },
+    "PS-43960B62": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SEPA",
+        "currency": "USD",
+        "kyc_tier": "unverified",
+        "amount": 2
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "unsupported_currency"
+      },
+      "matched_oracles": [
+        "sepa_eur_only"
+      ]
+    },
+    "PS-1C52D2EF": {
+      "inputs": {
+        "channel": "web",
+        "rail": "INSTANT",
+        "currency": "EUR",
+        "kyc_tier": "basic",
+        "amount": 5000
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 0
+      },
+      "matched_oracles": []
+    },
+    "PS-4775AEC4": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "SEPA",
+        "currency": "GBP",
+        "kyc_tier": "verified",
+        "amount": 5000
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "unsupported_currency"
+      },
+      "matched_oracles": [
+        "sepa_eur_only",
+        "mobile_high_value_2fa"
+      ]
+    },
+    "PS-89D22FDF": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SWIFT",
+        "currency": "USD",
+        "kyc_tier": "unverified",
+        "amount": 5000
+      },
+      "expected": {
+        "http_status": 403,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "kyc_limit_exceeded"
+      },
+      "matched_oracles": [
+        "kyc_unverified_cap",
+        "swift_fee"
+      ]
+    },
+    "PS-DAF7472A": {
+      "inputs": {
+        "channel": "web",
+        "rail": "SWIFT",
+        "currency": "EUR",
+        "kyc_tier": "basic",
+        "amount": 9999
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    },
+    "PS-658E182C": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "SEPA",
+        "currency": "USD",
+        "kyc_tier": "verified",
+        "amount": 9999
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "unsupported_currency"
+      },
+      "matched_oracles": [
+        "sepa_eur_only",
+        "mobile_high_value_2fa"
+      ]
+    },
+    "PS-91EEA035": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SWIFT",
+        "currency": "GBP",
+        "kyc_tier": "unverified",
+        "amount": 9999
+      },
+      "expected": {
+        "http_status": 403,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "kyc_limit_exceeded"
+      },
+      "matched_oracles": [
+        "kyc_unverified_cap",
+        "swift_fee"
+      ]
+    },
+    "PS-917C3426": {
+      "inputs": {
+        "channel": "web",
+        "rail": "INSTANT",
+        "currency": "EUR",
+        "kyc_tier": "basic",
+        "amount": 10000
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 0
+      },
+      "matched_oracles": []
+    },
+    "PS-626E97D2": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "SEPA",
+        "currency": "USD",
+        "kyc_tier": "verified",
+        "amount": 10000
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "unsupported_currency"
+      },
+      "matched_oracles": [
+        "sepa_eur_only",
+        "mobile_high_value_2fa"
+      ]
+    },
+    "PS-D72A2716": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SWIFT",
+        "currency": "GBP",
+        "kyc_tier": "unverified",
+        "amount": 10000
+      },
+      "expected": {
+        "http_status": 403,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "kyc_limit_exceeded"
+      },
+      "matched_oracles": [
+        "kyc_unverified_cap",
+        "swift_fee"
+      ]
+    },
+    "PS-E272D4B6": {
+      "inputs": {
+        "channel": "web",
+        "rail": "INSTANT",
+        "currency": "EUR",
+        "kyc_tier": "basic",
+        "amount": 10001
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "invalid_amount"
+      },
+      "matched_oracles": [
+        "invalid_amount_bounds"
+      ]
+    },
+    "PS-09D4BD0F": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "SEPA",
+        "currency": "USD",
+        "kyc_tier": "verified",
+        "amount": 10001
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "invalid_amount"
+      },
+      "matched_oracles": [
+        "invalid_amount_bounds",
+        "sepa_eur_only",
+        "mobile_high_value_2fa"
+      ]
+    },
+    "PS-BE8FB18D": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SWIFT",
+        "currency": "GBP",
+        "kyc_tier": "unverified",
+        "amount": 10001
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "invalid_amount"
+      },
+      "matched_oracles": [
+        "invalid_amount_bounds",
+        "kyc_unverified_cap",
+        "swift_fee"
+      ]
+    },
+    "PS-38E06077": {
+      "inputs": {
+        "channel": "web",
+        "rail": "INSTANT",
+        "currency": "EUR",
+        "kyc_tier": "basic",
+        "amount": 500
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 0
+      },
+      "matched_oracles": []
+    },
+    "PS-1D24F13A": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "SEPA",
+        "currency": "USD",
+        "kyc_tier": "verified",
+        "amount": 500
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "unsupported_currency"
+      },
+      "matched_oracles": [
+        "sepa_eur_only"
+      ]
+    },
+    "PS-59D83D7E": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SWIFT",
+        "currency": "GBP",
+        "kyc_tier": "unverified",
+        "amount": 500
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    },
+    "PS-C623F60A": {
+      "inputs": {
+        "channel": "api",
+        "rail": "INSTANT",
+        "currency": "EUR",
+        "kyc_tier": "basic",
+        "amount": 2
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 0
+      },
+      "matched_oracles": []
+    },
+    "PS-C4F733E9": {
+      "inputs": {
+        "channel": "web",
+        "rail": "INSTANT",
+        "currency": "EUR",
+        "kyc_tier": "basic",
+        "amount": 0
+      },
+      "expected": {
+        "http_status": 422,
+        "status": "rejected",
+        "requires_2fa": false,
+        "fee_bps": 0,
+        "reason": "invalid_amount"
+      },
+      "matched_oracles": [
+        "invalid_amount_bounds"
+      ]
+    },
+    "PS-E9DDF55C": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "INSTANT",
+        "currency": "EUR",
+        "kyc_tier": "verified",
+        "amount": 9999
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": true,
+        "fee_bps": 0
+      },
+      "matched_oracles": [
+        "mobile_high_value_2fa"
+      ]
+    },
+    "PS-57E8E367": {
+      "inputs": {
+        "channel": "web",
+        "rail": "SEPA",
+        "currency": "EUR",
+        "kyc_tier": "unverified",
+        "amount": 1
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 0
+      },
+      "matched_oracles": []
+    },
+    "PS-44C771F9": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "SWIFT",
+        "currency": "USD",
+        "kyc_tier": "basic",
+        "amount": 5000
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": true,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "mobile_high_value_2fa",
+        "swift_fee"
+      ]
+    },
+    "PS-8E931121": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "SWIFT",
+        "currency": "GBP",
+        "kyc_tier": "verified",
+        "amount": 10000
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": true,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "mobile_high_value_2fa",
+        "swift_fee"
+      ]
+    },
+    "PS-67004D58": {
+      "inputs": {
+        "channel": "mobile",
+        "rail": "SWIFT",
+        "currency": "USD",
+        "kyc_tier": "unverified",
+        "amount": 500
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    },
+    "PS-F1206411": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SWIFT",
+        "currency": "GBP",
+        "kyc_tier": "basic",
+        "amount": 1
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    },
+    "PS-4E31F96F": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SWIFT",
+        "currency": "USD",
+        "kyc_tier": "verified",
+        "amount": 5000
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    },
+    "PS-4AF38D9B": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SWIFT",
+        "currency": "GBP",
+        "kyc_tier": "basic",
+        "amount": 9999
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    },
+    "PS-B0B61DBD": {
+      "inputs": {
+        "channel": "api",
+        "rail": "SWIFT",
+        "currency": "USD",
+        "kyc_tier": "verified",
+        "amount": 10000
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    },
+    "PS-4EA081F9": {
+      "inputs": {
+        "channel": "web",
+        "rail": "SWIFT",
+        "currency": "GBP",
+        "kyc_tier": "verified",
+        "amount": 500
+      },
+      "expected": {
+        "http_status": 200,
+        "status": "approved",
+        "requires_2fa": false,
+        "fee_bps": 150
+      },
+      "matched_oracles": [
+        "swift_fee"
+      ]
+    }
+  }
+}
