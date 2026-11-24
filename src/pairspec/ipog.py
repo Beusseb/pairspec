@@ -529,7 +529,11 @@ def verify_coverage(
     strength: int | None = None,
     domains: dict[str, list[Any]] | None = None,
 ) -> CoverageReport:
-    """Independently verify t-wise coverage and zero exclusion violations on generated cases."""
+    """Recount t-wise coverage and exclusion violations of `cases`.
+
+    It reuses the generator's exclusion predicate, so it is a self-check, not an independent oracle
+    (see tests/test_independent_oracles.py for the independent one).
+    """
     doms = domains or {p.name: expand_parameter_values(p) for p in spec.parameters}
     param_names = [p.name for p in spec.parameters]
     eff_t = min(strength if strength is not None else spec.strength, len(param_names))

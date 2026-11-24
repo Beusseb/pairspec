@@ -64,11 +64,11 @@ def _eval_node(node: ast.AST, env: dict[str, Any]) -> Any:
     if isinstance(node, ast.Name):
         if node.id in env:
             return env[node.id]
-        if node.id in ("true", "True"):
+        if node.id == "true":  # `True`, `False`, `None` parse as ast.Constant
             return True
-        if node.id in ("false", "False"):
+        if node.id == "false":
             return False
-        if node.id in ("null", "none", "None"):
+        if node.id in ("null", "none"):
             return None
         raise UnresolvedVariableError(node.id)
     if isinstance(node, ast.List):
@@ -143,7 +143,7 @@ def _compile_expr(expr: str) -> tuple[ast.Expression, frozenset[str]]:
         for node in ast.walk(tree)
         if isinstance(node, ast.Name)
         and node.id not in _SAFE_FUNCS
-        and node.id not in ("true", "True", "false", "False", "null", "none", "None")
+        and node.id not in ("true", "false", "null", "none")
     )
     return tree, variables
 
