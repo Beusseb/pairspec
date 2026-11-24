@@ -1,0 +1,802 @@
+{
+  "schema_version": "1",
+  "spec_name": "validate_email",
+  "spec_version": "1.0.0",
+  "spec_fingerprint": "bbf5d17543291dac",
+  "strength": 2,
+  "cartesian_size": 8960,
+  "case_count": 38,
+  "reduction_pct": 99.58,
+  "coverage_pct": 100.0,
+  "cases": {
+    "PS-F7BB9415": {
+      "inputs": {
+        "local": "plain",
+        "domain": "public",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-D2D59CBF": {
+      "inputs": {
+        "local": "quoted",
+        "domain": "public",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "quoted_local_not_allowed"
+      ]
+    },
+    "PS-1F794C06": {
+      "inputs": {
+        "local": "unicode",
+        "domain": "public",
+        "display_name": false,
+        "allow_smtputf8": true,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": false,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": true
+      },
+      "matched_oracles": [
+        "unicode_local_needs_smtputf8"
+      ]
+    },
+    "PS-E4797DFC": {
+      "inputs": {
+        "local": "empty",
+        "domain": "public",
+        "display_name": true,
+        "allow_smtputf8": false,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": true,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "empty_local_not_allowed",
+        "display_name_not_allowed"
+      ]
+    },
+    "PS-C96AB922": {
+      "inputs": {
+        "local": "long",
+        "domain": "public",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": false,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-3458940D": {
+      "inputs": {
+        "local": "plain",
+        "domain": "idn",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": true,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-AF4BEC07": {
+      "inputs": {
+        "local": "quoted",
+        "domain": "idn",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-723F87B3": {
+      "inputs": {
+        "local": "unicode",
+        "domain": "idn",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": true,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "smtputf8_not_allowed",
+        "unicode_local_needs_smtputf8"
+      ]
+    },
+    "PS-5D8760DA": {
+      "inputs": {
+        "local": "empty",
+        "domain": "idn",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": false,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-442EF288": {
+      "inputs": {
+        "local": "long",
+        "domain": "idn",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": true,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "long_local_in_strict_mode"
+      ]
+    },
+    "PS-09E650BD": {
+      "inputs": {
+        "local": "plain",
+        "domain": "test_tld",
+        "display_name": true,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "test_domain_outside_test_environment"
+      ]
+    },
+    "PS-53AF8DA9": {
+      "inputs": {
+        "local": "quoted",
+        "domain": "test_tld",
+        "display_name": false,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-AA836F3E": {
+      "inputs": {
+        "local": "unicode",
+        "domain": "test_tld",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": false,
+        "test_environment": true,
+        "strict": false
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": true
+      },
+      "matched_oracles": [
+        "unicode_local_needs_smtputf8"
+      ]
+    },
+    "PS-19E774D2": {
+      "inputs": {
+        "local": "empty",
+        "domain": "test_tld",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "test_domain_outside_test_environment",
+        "empty_local_not_allowed"
+      ]
+    },
+    "PS-B814A2F0": {
+      "inputs": {
+        "local": "long",
+        "domain": "test_tld",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "long_local_in_strict_mode"
+      ]
+    },
+    "PS-68E3D62F": {
+      "inputs": {
+        "local": "plain",
+        "domain": "localhost",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "special_use_localhost"
+      ]
+    },
+    "PS-1EB22293": {
+      "inputs": {
+        "local": "quoted",
+        "domain": "localhost",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "special_use_localhost"
+      ]
+    },
+    "PS-55B9BE70": {
+      "inputs": {
+        "local": "unicode",
+        "domain": "localhost",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "special_use_localhost",
+        "smtputf8_not_allowed",
+        "unicode_local_needs_smtputf8"
+      ]
+    },
+    "PS-8ACB6380": {
+      "inputs": {
+        "local": "empty",
+        "domain": "localhost",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "special_use_localhost"
+      ]
+    },
+    "PS-7F0C7C1B": {
+      "inputs": {
+        "local": "long",
+        "domain": "localhost",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "special_use_localhost"
+      ]
+    },
+    "PS-5D6237D5": {
+      "inputs": {
+        "local": "plain",
+        "domain": "no_dot",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_without_dot"
+      ]
+    },
+    "PS-57253E9E": {
+      "inputs": {
+        "local": "quoted",
+        "domain": "no_dot",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_without_dot",
+        "quoted_local_not_allowed"
+      ]
+    },
+    "PS-1ED2D995": {
+      "inputs": {
+        "local": "unicode",
+        "domain": "no_dot",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_without_dot",
+        "unicode_local_needs_smtputf8"
+      ]
+    },
+    "PS-30B1D43E": {
+      "inputs": {
+        "local": "empty",
+        "domain": "no_dot",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_without_dot",
+        "empty_local_not_allowed"
+      ]
+    },
+    "PS-B86011BC": {
+      "inputs": {
+        "local": "long",
+        "domain": "no_dot",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_without_dot",
+        "long_local_in_strict_mode"
+      ]
+    },
+    "PS-74CF681B": {
+      "inputs": {
+        "local": "plain",
+        "domain": "literal_ipv4",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_literal_not_allowed"
+      ]
+    },
+    "PS-A60FF4DE": {
+      "inputs": {
+        "local": "quoted",
+        "domain": "literal_ipv4",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-7C238419": {
+      "inputs": {
+        "local": "unicode",
+        "domain": "literal_ipv4",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_literal_not_allowed",
+        "smtputf8_not_allowed",
+        "unicode_local_needs_smtputf8"
+      ]
+    },
+    "PS-A89CE0E6": {
+      "inputs": {
+        "local": "empty",
+        "domain": "literal_ipv4",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-AD1230A5": {
+      "inputs": {
+        "local": "long",
+        "domain": "literal_ipv4",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_literal_not_allowed"
+      ]
+    },
+    "PS-7E1EDA47": {
+      "inputs": {
+        "local": "plain",
+        "domain": "literal_ipv6",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-2A810418": {
+      "inputs": {
+        "local": "quoted",
+        "domain": "literal_ipv6",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_literal_not_allowed",
+        "quoted_local_not_allowed"
+      ]
+    },
+    "PS-676E803F": {
+      "inputs": {
+        "local": "unicode",
+        "domain": "literal_ipv6",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": true
+      },
+      "matched_oracles": [
+        "unicode_local_needs_smtputf8"
+      ]
+    },
+    "PS-F9B59D26": {
+      "inputs": {
+        "local": "empty",
+        "domain": "literal_ipv6",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "domain_literal_not_allowed",
+        "empty_local_not_allowed"
+      ]
+    },
+    "PS-9911F70F": {
+      "inputs": {
+        "local": "long",
+        "domain": "literal_ipv6",
+        "display_name": true,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": true
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "long_local_in_strict_mode"
+      ]
+    },
+    "PS-A4BA2B3B": {
+      "inputs": {
+        "local": "plain",
+        "domain": "public",
+        "display_name": true,
+        "allow_smtputf8": false,
+        "allow_quoted_local": false,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": false
+      },
+      "expected": {
+        "valid": false,
+        "smtputf8": "n/a"
+      },
+      "matched_oracles": [
+        "display_name_not_allowed"
+      ]
+    },
+    "PS-7DEED7F1": {
+      "inputs": {
+        "local": "empty",
+        "domain": "idn",
+        "display_name": false,
+        "allow_smtputf8": true,
+        "allow_quoted_local": true,
+        "allow_domain_literal": true,
+        "allow_display_name": true,
+        "allow_empty_local": true,
+        "test_environment": true,
+        "strict": false
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    },
+    "PS-00EEF557": {
+      "inputs": {
+        "local": "quoted",
+        "domain": "public",
+        "display_name": false,
+        "allow_smtputf8": false,
+        "allow_quoted_local": true,
+        "allow_domain_literal": false,
+        "allow_display_name": false,
+        "allow_empty_local": false,
+        "test_environment": false,
+        "strict": true
+      },
+      "expected": {
+        "valid": true,
+        "smtputf8": false
+      },
+      "matched_oracles": []
+    }
+  }
+}

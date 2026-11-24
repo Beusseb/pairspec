@@ -1,0 +1,132 @@
+# Written from the public documentation of email-validator 2.4.0 only (the README published on
+# PyPI and GitHub, sections "Options", "Internationalized local parts", "Test addresses",
+# "Assumptions"). The library's source code was not read before this spec and its suite existed.
+# DNS checks are always off (check_deliverability=False), so the outcome is syntax only.
+
+[spec]
+name = "validate_email"
+version = "1.0.0"
+description = "email_validator.validate_email options vs address forms (syntax only, no DNS)"
+strength = 2
+
+[default_expect]
+valid = true
+smtputf8 = false
+
+[[parameters]]
+name = "local"
+type = "enum"
+values = ["plain", "quoted", "unicode", "empty", "long"]
+description = "me | \"my name\" | méo | (empty) | 65 x 'a'"
+
+[[parameters]]
+name = "domain"
+type = "enum"
+values = ["public", "idn", "test_tld", "localhost", "no_dot", "literal_ipv4", "literal_ipv6"]
+description = "example.org | exämple.org | myname.test | localhost | example | [192.0.2.1] | [IPv6:2001:db8::1]"
+
+[[parameters]]
+name = "display_name"
+type = "bool"
+description = "wrap the address as `My Name <address>`"
+
+[[parameters]]
+name = "allow_smtputf8"
+type = "bool"
+
+[[parameters]]
+name = "allow_quoted_local"
+type = "bool"
+
+[[parameters]]
+name = "allow_domain_literal"
+type = "bool"
+
+[[parameters]]
+name = "allow_display_name"
+type = "bool"
+
+[[parameters]]
+name = "allow_empty_local"
+type = "bool"
+
+[[parameters]]
+name = "test_environment"
+type = "bool"
+
+[[parameters]]
+name = "strict"
+type = "bool"
+
+# Rejections. "invalid" means EmailNotValidError is raised (no result object, so smtputf8 is "n/a").
+
+[[oracles]]
+name = "special_use_localhost"
+priority = 10
+when = "domain == 'localhost'"
+expect = { valid = false, smtputf8 = "n/a" }
+description = "Assumptions: most Special Use Domain Names are rejected; test_environment only permits `test`"
+
+[[oracles]]
+name = "domain_without_dot"
+priority = 11
+when = "domain == 'no_dot'"
+expect = { valid = false, smtputf8 = "n/a" }
+description = "Assumptions: domain names without a `.` are rejected"
+
+[[oracles]]
+name = "test_domain_outside_test_environment"
+priority = 12
+when = "domain == 'test_tld' and not test_environment"
+expect = { valid = false, smtputf8 = "n/a" }
+description = "Options/test_environment and Test addresses"
+
+[[oracles]]
+name = "domain_literal_not_allowed"
+priority = 13
+when = "domain in ['literal_ipv4', 'literal_ipv6'] and not allow_domain_literal"
+expect = { valid = false, smtputf8 = "n/a" }
+description = "Options/allow_domain_literal=False"
+
+[[oracles]]
+name = "quoted_local_not_allowed"
+priority = 14
+when = "local == 'quoted' and not allow_quoted_local"
+expect = { valid = false, smtputf8 = "n/a" }
+description = "Options/allow_quoted_local=False"
+
+[[oracles]]
+name = "smtputf8_not_allowed"
+priority = 15
+when = "local == 'unicode' and not allow_smtputf8"
+expect = { valid = false, smtputf8 = "n/a" }
+description = "Options/allow_smtputf8 and Internationalized local parts"
+
+[[oracles]]
+name = "empty_local_not_allowed"
+priority = 16
+when = "local == 'empty' and not allow_empty_local"
+expect = { valid = false, smtputf8 = "n/a" }
+description = "Options/allow_empty_local=False"
+
+[[oracles]]
+name = "long_local_in_strict_mode"
+priority = 17
+when = "local == 'long' and strict"
+expect = { valid = false, smtputf8 = "n/a" }
+description = "Options/strict: additional syntax checks, currently only a local part length check"
+
+[[oracles]]
+name = "display_name_not_allowed"
+priority = 18
+when = "display_name and not allow_display_name"
+expect = { valid = false, smtputf8 = "n/a" }
+description = "Options/allow_display_name=False"
+
+# When valid: SMTPUTF8 is needed only for a non-ASCII local part, not for an IDN domain.
+[[oracles]]
+name = "unicode_local_needs_smtputf8"
+priority = 50
+when = "local == 'unicode'"
+expect = { smtputf8 = true }
+description = "Returned object, `smtputf8` field; IDN section: domains are IDNA-encoded instead"
