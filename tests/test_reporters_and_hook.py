@@ -227,9 +227,9 @@ def test_anti_mirror_trap_hook_blocks_sut_before_lock_and_allows_after(tmp_path:
     assert code == 2
     assert "Anti-Mirror-Trap" in msg
 
-    # Non-guarded tools (e.g. Bash) pass through
+    # Non-guarded tools pass through
     code, _ = hook.evaluate_hook_event(
-        {"tool_name": "Bash", "tool_input": {"command": "ls"}, "cwd": str(tmp_path)}
+        {"tool_name": "WebFetch", "tool_input": {"url": "https://example.com"}, "cwd": str(tmp_path)}
     )
     assert code == 0
 
@@ -253,3 +253,53 @@ def test_anti_mirror_trap_hook_blocks_sut_before_lock_and_allows_after(tmp_path:
         {"tool_name": "Read", "tool_input": {"file_path": str(sut_file)}, "cwd": str(tmp_path)}
     )
     assert code == 0 and msg == ""
+
+
+def _hook_code(hook, tmp_path: Path, tool_name: str, tool_input: dict) -> int:
+    code, _ = hook.evaluate_hook_event({"tool_name": tool_name, "tool_input": tool_input, "cwd": str(tmp_path)})
+    return code
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "cat src/payout.py",
+        "head -n 50 ./src/payout.py",
+        "grep -rn amount src",
+        "python3 -c \"print(open('src/payout.py').read())\"",
+        "wc -l <src/payout.py",
+    ],
+)
+def test_hook_blocks_bash_reading_sut_before_lock(tmp_path: Path, command: str) -> None:
+    hook = _load_hook_module()
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "payout.py").write_text("def pay(): pass\n", encoding="utf-8")
+    assert _hook_code(hook, tmp_path, "Bash", {"command": command}) == 2
+
+
+@pytest.mark.parametrize(
+    "command",
+    ["ls", "pytest tests/", "cat specs/payout.toml", "pip install lib", "echo 'unbalanced"],
+)
+def test_hook_allows_bash_without_sut_path(tmp_path: Path, command: str) -> None:
+    hook = _load_hook_module()
+    (tmp_path / "src").mkdir()
+    (tmp_path / "specs").mkdir()
+    (tmp_path / "specs" / "payout.toml").write_text("[spec]\n", encoding="utf-8")
+    assert _hook_code(hook, tmp_path, "Bash", {"command": command}) == 0
+
+
+def test_hook_treats_grep_without_path_as_sut_search(tmp_path: Path) -> None:
+    hook = _load_hook_module()
+    assert _hook_code(hook, tmp_path, "Grep", {"pattern": "def "}) == 0  # no SUT dir in this project
+    (tmp_path / "src").mkdir()
+    assert _hook_code(hook, tmp_path, "Grep", {"pattern": "def "}) == 2
+    assert _hook_code(hook, tmp_path, "Grep", {"pattern": "def ", "path": "specs"}) == 0
+
+
+def test_hook_known_bypass_path_built_at_run_time(tmp_path: Path) -> None:
+    """Documented limit: a path assembled by the shell is invisible to the hook."""
+    hook = _load_hook_module()
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "payout.py").write_text("def pay(): pass\n", encoding="utf-8")
+    assert _hook_code(hook, tmp_path, "Bash", {"command": "cat $(printf sr)c/payout.py"}) == 0
