@@ -15,7 +15,7 @@
 
 ## Why PairSpec?
 
-1. **Anti Mirror Trap (Blind Oracles + PreToolUse Hook)** — Expected outcomes are evaluated purely from declarative spec rules, never from implementation code. Ships with a deterministic `PreToolUse` hook ([`hooks/anti_mirror_trap_hook.py`](hooks/anti_mirror_trap_hook.py)) that blocks coding agents from reading `src/` before `pairspec.lock.json` is locked.
+1. **Anti Mirror Trap (Blind Oracles + PreToolUse Hook)** — Expected outcomes are evaluated purely from declarative spec rules, never from implementation code. Ships with a deterministic `PreToolUse` hook ([`hooks/anti_mirror_trap_hook.py`](hooks/anti_mirror_trap_hook.py)) that reduces the chance of a coding agent reading `src/` before `pairspec.lock.json` is locked (guard rail, not a sandbox: see its limits below).
 2. **Deterministic IPOG + BVA Engine (0 tokens, 0 hallucination)** — Full In-Parameter-Order-General (`t=1..3`, default pairwise `t=2`) + Boundary Value Analysis + CSP exclusion solver in pure Python 3.11+ stdlib (`py.typed` PEP 561).
 3. **Mask-Aware Oracle Coverage** — Pairwise guarantees a value pair appears, not that its effect is visible: a rejection rule matching in the same case hides a bug in a weaker rule. PairSpec appends the minimal unmasking cases so every oracle decision is observable.
 4. **Decoupled Production-Grade Emitters** — Non-destructive regeneration across **Pytest** (injectable `conftest.py` fixture + multi-field diagnostics), **Playwright TypeScript** (decoupled `./<slug>.adapter`, native `{ tag: [...] }`, `{ request }`, `test.step`, `expect.soft`), **Kotlin JUnit 5** (`abstract class`, `@Tag`, `@DisplayName`, `assertAll`), and **Gherkin** (`@pairspec:` + `@oracle:` tags).
@@ -95,7 +95,7 @@ Prevent coding agents from peeking at `src/` before blind spec oracles are locke
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Read|Grep|Glob",
+        "matcher": "Read|Grep|Glob|Bash",
         "hooks": [
           {
             "type": "command",
@@ -110,6 +110,8 @@ Prevent coding agents from peeking at `src/` before blind spec oracles are locke
 
 - Before `pairspec.lock.json` exists: reading functional specs is allowed; reading SUT implementation paths (`PAIRSPEC_SUT_DIRS=src,app,lib`) exits `2` with actionable guidance.
 - Once `pairspec generate <spec> --lock pairspec.lock.json` runs: full codebase reads unlock automatically.
+- `Bash` commands are checked for existing SUT paths written literally (`cat src/x.py`, `python -c "open('src/x.py')"`); a `Grep` without a path counts as a search of the SUT.
+- Not seen: paths built at run time (`$(...)`, variables, globs), `grep -r` over `.`, code executed without being printed, and tools of other agents under other names. Tested in [`tests/test_reporters_and_hook.py`](tests/test_reporters_and_hook.py), including one known bypass.
 
 ---
 
